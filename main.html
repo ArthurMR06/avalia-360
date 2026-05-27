@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avaliação 360 - Equipe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 { text-align: center; color: #333; margin-bottom: 5px; }
+        p.subtitle { text-align: center; font-size: 14px; color: #666; margin-bottom: 25px; }
+        .contador { text-align: center; font-weight: bold; color: #0056b3; margin-bottom: 20px; }
+        .member-group { margin-bottom: 15px; }
+        label.nome { display: block; margin-bottom: 5px; font-weight: bold; color: #444; }
+        
+        .star-rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            font-size: 30px;
+        }
+        .star-rating input { display: none; }
+        .star-rating label { cursor: pointer; color: #ccc; }
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label { color: #ffcc00; }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #25D366;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover { background-color: #1ebe57; }
+        #mensagem { margin-top: 15px; text-align: center; font-weight: bold; color: #28a745; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Avaliação 360</h2>
+    <p class="subtitle">Votação 100% sigilosa. Avalie de 1 a 4 estrelas.</p>
+    
+    <div class="contador" id="contadorDisplay">Votos registrados: 0 / 4</div>
+
+    <form id="formVotacao">
+        
+        <div class="member-group">
+            <label class="nome">Arthur</label>
+            <div class="star-rating">
+                <input type="radio" id="star4-arthur" name="arthur" value="4"><label for="star4-arthur">★</label>
+                <input type="radio" id="star3-arthur" name="arthur" value="3"><label for="star3-arthur">★</label>
+                <input type="radio" id="star2-arthur" name="arthur" value="2"><label for="star2-arthur">★</label>
+                <input type="radio" id="star1-arthur" name="arthur" value="1"><label for="star1-arthur">★</label>
+            </div>
+        </div>
+
+        <div class="member-group">
+            <label class="nome">Gildean</label>
+            <div class="star-rating">
+                <input type="radio" id="star4-gildean" name="gildean" value="4"><label for="star4-gildean">★</label>
+                <input type="radio" id="star3-gildean" name="gildean" value="3"><label for="star3-gildean">★</label>
+                <input type="radio" id="star2-gildean" name="gildean" value="2"><label for="star2-gildean">★</label>
+                <input type="radio" id="star1-gildean" name="gildean" value="1"><label for="star1-gildean">★</label>
+            </div>
+        </div>
+
+        <div class="member-group">
+            <label class="nome">Pedro</label>
+            <div class="star-rating">
+                <input type="radio" id="star4-pedro" name="pedro" value="4"><label for="star4-pedro">★</label>
+                <input type="radio" id="star3-pedro" name="pedro" value="3"><label for="star3-pedro">★</label>
+                <input type="radio" id="star2-pedro" name="pedro" value="2"><label for="star2-pedro">★</label>
+                <input type="radio" id="star1-pedro" name="pedro" value="1"><label for="star1-pedro">★</label>
+            </div>
+        </div>
+
+        <div class="member-group">
+            <label class="nome">Natan</label>
+            <div class="star-rating">
+                <input type="radio" id="star4-natan" name="natan" value="4"><label for="star4-natan">★</label>
+                <input type="radio" id="star3-natan" name="natan" value="3"><label for="star3-natan">★</label>
+                <input type="radio" id="star2-natan" name="natan" value="2"><label for="star2-natan">★</label>
+                <input type="radio" id="star1-natan" name="natan" value="1"><label for="star1-natan">★</label>
+            </div>
+        </div>
+
+        <button type="submit">Registrar Voto Sigiloso</button>
+    </form>
+    <div id="mensagem"></div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCgO-Q8vgPnhT7u4LTZfPMEuDwXM8NbGGQ",
+        authDomain: "avalia-360-77e2c.firebaseapp.com",
+        databaseURL: "https://avalia-360-77e2c-default-rtdb.firebaseio.com",
+        projectId: "avalia-360-77e2c",
+        storageBucket: "avalia-360-77e2c.firebasestorage.app",
+        messagingSenderId: "767004481374",
+        appId: "1:767004481374:web:9f43a1641f8608a3f6a1cf",
+        measurementId: "G-SWP1RNFGPQ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const votosRef = ref(db, 'votos');
+
+    if (localStorage.getItem('jaVotou360') === 'true') {
+        document.getElementById('formVotacao').style.display = 'none';
+        document.getElementById('mensagem').innerText = "Você já registrou seu voto neste dispositivo.";
+    }
+
+    onValue(votosRef, (snapshot) => {
+        const dados = snapshot.val();
+        const numVotos = dados ? Object.keys(dados).length : 0;
+        document.getElementById('contadorDisplay').innerText = `Votos registrados: ${numVotos} / 4`;
+
+        if (numVotos >= 4 && localStorage.getItem('jaVotou360') === 'true' && !localStorage.getItem('whatsEnviado')) {
+            let somaArthur = 0, somaGildean = 0, somaPedro = 0, somaNatan = 0;
+            
+            for (let id in dados) {
+                somaArthur += dados[id].Arthur;
+                somaGildean += dados[id].Gildean;
+                somaPedro += dados[id].Pedro;
+                somaNatan += dados[id].Natan;
+            }
+
+            const mediaArthur = (somaArthur / 4).toFixed(1);
+            const mediaGildean = (somaGildean / 4).toFixed(1);
+            const mediaPedro = (somaPedro / 4).toFixed(1);
+            const mediaNatan = (somaNatan / 4).toFixed(1);
+
+            const textoMensagem = `*Resultado - Avaliação 360*\n\nArthur: ${mediaArthur} ⭐\nGildean: ${mediaGildean} ⭐\nPedro: ${mediaPedro} ⭐\nNatan: ${mediaNatan} ⭐\n\n_Votação concluída via nuvem._`;
+            const numeroTelefone = "5521989127567";
+            const urlWhatsApp = `https://wa.me/${numeroTelefone}?text=${encodeURIComponent(textoMensagem)}`;
+            
+            localStorage.setItem('whatsEnviado', 'true');
+            setTimeout(() => { window.open(urlWhatsApp, '_blank'); }, 1500);
+        }
+    });
+
+    document.getElementById('formVotacao').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const arthur = document.querySelector('input[name="arthur"]:checked');
+        const gildean = document.querySelector('input[name="gildean"]:checked');
+        const pedro = document.querySelector('input[name="pedro"]:checked');
+        const natan = document.querySelector('input[name="natan"]:checked');
+
+        if (!arthur || !gildean || !pedro || !natan) {
+            document.getElementById('mensagem').innerText = "Por favor, avalie todos os membros.";
+            return;
+        }
+
+        try {
+            document.querySelector('button[type="submit"]').disabled = true;
+            document.getElementById('mensagem').innerText = "Enviando voto...";
+
+            await push(votosRef, {
+                Arthur: Number(arthur.value),
+                Gildean: Number(gildean.value),
+                Pedro: Number(pedro.value),
+                Natan: Number(natan.value)
+            });
+
+            localStorage.setItem('jaVotou360', 'true');
+            document.getElementById('formVotacao').style.display = 'none';
+            document.getElementById('mensagem').style.color = '#28a745';
+            document.getElementById('mensagem').innerText = "Voto registrado com sucesso e salvo na nuvem!";
+        } catch (error) {
+            document.getElementById('mensagem').style.color = 'red';
+            document.getElementById('mensagem').innerText = "Erro ao conectar com o banco de dados.";
+            document.querySelector('button[type="submit"]').disabled = false;
+        }
+    });
+</script>
+
+</body>
+</html>
